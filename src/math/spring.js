@@ -8,9 +8,16 @@ class Spring {
         this.prevLength = restLength;
         this.springConstant = 1.6e-3;
         this.dampingConstant = 1;
+        
+        ball1.springs.push(this)
+        ball2.springs.push(this)
     }
 
     update(dt) {
+        if( this.hitByBullet ){
+            return
+        }
+        
         // Calculate the vector between the two balls
         let displacement = this.ball2.pos.sub(this.ball1.pos);
 
@@ -49,7 +56,7 @@ class Spring {
 
     draw(g) {
         if( this.debug ){
-            g.strokeStyle = 'gray'
+            g.strokeStyle = (this.hitByBullet ? 'red' : 'gray')
             g.lineWidth = .01;
             g.beginPath();
             g.moveTo(this.ball1.pos.x, this.ball1.pos.y);

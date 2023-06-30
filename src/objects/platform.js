@@ -12,6 +12,17 @@ class Platform extends PhysicsObject {
         this.resetChildren()
     }
     
+    draw(g){
+        super.draw(g)
+        g.fillStyle = 'white'
+        g.beginPath()
+        g.moveTo(this.all_verts[0][0],this.all_verts[0][1])
+        for( var i = 1 ; i < all_verts.length ; i++ ){
+            g.lineTo(this.all_verts[i][0],this.all_verts[i][1])
+        }
+        g.fill()
+    }
+    
     resetChildren(){
         this.children = []
         for( var i = 0 ; i < 4 ; i++ ){
@@ -37,6 +48,9 @@ class Platform extends PhysicsObject {
     // if p not inside platform return null
     // otherwise return nearest point on edge of platform
     inPlatform(p){
+        if (!isPointInsidePolygon(p,this.all_verts)) {
+            return null;
+        }
         return computeNearestPointOnPolygon(p,this.all_verts)
     }
     

@@ -10,16 +10,7 @@ function draw(fps, t) {
    
     ctx.fillStyle = backgroundColor
     ctx.fillRect( 0, 0, canvas.width, canvas.height )
-    
-    var padding = 10; // Padding around the square region
-    var dimension = Math.min(canvas.width, canvas.height) - padding * 2;
-    var scale = dimension;
-    var offsetX = (canvas.width - dimension) / 2;
-    var offsetY = (canvas.height - dimension) / 2;
-    if(paused){
-        scale *= 5
-    }
-    ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+    ctx.setTransform(canvasScale, 0, 0, canvasScale, canvasOffsetX, canvasOffsetY);
     // test
     //ctx.fillStyle = 'black'
     //ctx.fillRect( .25,.25,.5,.5 )
@@ -40,13 +31,19 @@ function draw(fps, t) {
     ctx.fillRect(0,0,1,1)
     ctx.globalCompositeOperation = 'source-over'
     
+    // draw mouse position
+    ctx.fillStyle = 'red'
+    ctx.beginPath()
+    ctx.arc(mousePos.x,mousePos.y,.02,0,2*Math.PI)
+    ctx.fill()
+    
     
     // Draw FPS on the screen
-    //ctx.font = "25px Arial";
-    //ctx.textAlign = "left";
-    //ctx.fillStyle = "black";
-    //var x = 10
-    //var y = 100
+    ctx.font = ".025px Arial";
+    ctx.textAlign = "left";
+    ctx.fillStyle = "black";
+    var x = .4
+    var y = .4
     //ctx.fillText("FPS: " + fps, x, y);
     
     
@@ -62,8 +59,8 @@ function draw(fps, t) {
     //ctx.fillText(`camera: ${cameraX.toFixed(2)}, ${cameraY.toFixed(2)}, ${zoomLevel.toFixed(2)}`, x, y);
     //y += 30
     //ctx.fillText(gameState, x, y);
-    //y += 30 
+    //y += .03
     //ctx.fillText(`canvas pos: ${canvasMouseX}, ${canvasMouseY}`, x, y);
-    //y += 30
+    //y += .03
     //ctx.fillText(`virtual pos: ${virtualMouseX}, ${virtualMouseY}`, x, y);
 }

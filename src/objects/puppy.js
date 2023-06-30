@@ -17,21 +17,23 @@ class Puppy extends PhysicsObject {
             [0,3],[1,2], //23 animated
             [1,3], //4 leg
             
-            [0,4],[1,5],[4,5],[0,5],[1,4], // 567 top
-            [2,4],[3,5], //89 anim limiters
+            [0,4],[1,5],[4,5],[0,5],[1,4], // top
+            [2,4],[3,5], // 10 anim limiters
             
-            [1,6],[5,6],[4,6],[0,6], //head support
-            [1,7],[5,7],[4,7],[0,7], //tail support
+            [1,6],[5,6],[4,6],[0,6], //12 head support
+            [1,7],[5,7],[4,7],[0,7], //16 tail support
         ]
         var gibs = [
+            ['l',18], //tail
+            
             //[0,1], // belly
             
-            ['l',0,2],['l',1,3], // legs
+            ['l',1],['l',4], // legs
             
-            ['r',1,0,4,5], //  top
+            ['l',0],['l',5],['l',6],['l',7],
+            //['r',1,0,4,5], //  top
             
-            [.04,1,6], //head
-            ['l',4,7] //tail
+            [.04,12], //head
         ]
         
         // structure scale/offset
@@ -54,20 +56,25 @@ class Puppy extends PhysicsObject {
             var a = all_balls[springs[i][0]]
             var b = all_balls[springs[i][1]]
             var d = a.pos.sub(b.pos).getMagnitude()
-            all_springs.push(new Spring( a,b, d ))
+            var spring = new Spring( a,b, d )
+            spring.parentPuppy = this
+            all_springs.push(spring)
         }
+        var is = [0,1,4,7,12,18]
+        is.forEach( i => all_springs[i].breakable = true )
         var all_gibs = []
         for( var i = 0 ; i < gibs.length ; i++ ){
-            var ps = gibs[i].slice(1).map(bi  => all_balls[bi])
             if( gibs[i][0] == 'r' ){
-                all_gibs.push(new RectGib( ps ))
+                var ps = gibs[i].slice(1).map(bi  => all_balls[bi])
+                var gib = new RectGib( ps )
             } else if( gibs[i][0] == 'l' ){
-                all_gibs.push(new LineGib( ...ps ))
+                var gib = new LineGib( all_springs[gibs[i][1]] )
             } else {
-                all_gibs.push(new FaceGib( ps[0],ps[1], gibs[i][0] ))
+                var gib = new FaceGib( all_springs[gibs[i][1]], gibs[i][0] )
             }
+            gib.parentPuppy = this
+            all_gibs.push(gib)
         }
-        all_gibs[4].lineWidth = .03
         
         //adjust bouyancy
         all_balls[6].bouyancyMultiplier = 3 //head
@@ -78,13 +85,14 @@ class Puppy extends PhysicsObject {
         all_balls[2].bouyancyMultiplier = .2 //rear leg
         
         // leg animation specs
-        this.currDist = all_springs[3].restLength
+        this.animSprings = [all_springs[2],all_springs[3]]
+        this.currDist = this.animSprings[0].restLength
         this.upDist = this.currDist
         this.shortDist = this.upDist * .8
-        this.longDist = this.upDist * 1.3
+        this.longDist = this.upDist * 1.2
         this.restDist = this.upDist * 1.3
         this.animTime = 0
-        this.animSpeed = 1e-4 // dist units per ms
+        this.animSpeed = 3e-4 // dist units per ms
         this.phaseIndex = 1
         
         this.animPeriod = 150 // ms
@@ -97,7 +105,9 @@ class Puppy extends PhysicsObject {
         this.minWag = 0 //radians
         this.maxWag = 1 //radians
         this.wagSpeed = 2e-2 // radians per ms
-        this.wagPeriod = 100 // ms
+        this.wagPeriod = 80 // ms
+        this.wagChild = all_gibs[0]
+        this.wagChild.lineWidth = .03
         
         
         // assign member vars
@@ -111,6 +121,38 @@ class Puppy extends PhysicsObject {
     
     update(dt, all_ents){
         super.update(dt,all_ents)
+       
+       var breakSpecs = [
+        [0,[2,3,8,9,14,15]], //belly
+        [7,[1,3,8,9,14,15]], //back
+        [18,[16,17,18,19]], //tail
+        [12,[13,14,15]], //head
+        [1,[2,10]], //leg
+        [4,[3,11]], //leg
+       ]
+       
+       breakSpecs.forEach(spec => {
+          if( this.all_springs[spec[0]].hitByBullet ){
+            spec[1].forEach( j => this.all_springs[j].hitByBullet = true )
+          }
+       })
+        //check if belly broken
+        if( this.all_springs[0].hitByBullet ){
+            var is = [2,3,8,9,14,15]
+            is.forEach( i => this.all_springs[i].hitByBullet = true )
+        }
+       
+        //check if back broken
+        if( this.all_springs[7].hitByBullet ){
+            var is = [2,3,8,9,14,15]
+            is.forEach( i => this.all_springs[i].hitByBullet = true )
+        }
+       
+        //check if broken in half
+        if( this.all_springs[0].hitByBullet & this.all_springs[7].hitByBullet ){
+            var is = [2,3,8,9,14,15,16,17]
+            is.forEach( i => this.all_springs[i].hitByBullet = true )
+        }
        
         this.animTime += dt
         if( this.submerged ){
@@ -159,8 +201,7 @@ class Puppy extends PhysicsObject {
         } else {
             this.currDist = Math.max( this.currDist-this.animSpeed*dt, targetDist )
         }
-        this.all_springs[3].restLength = this.currDist
-        this.all_springs[2].restLength = this.currDist
+        this.animSprings.forEach(s => s.restLength = this.currDist)
             
         // wag tail
         var wagIndex = Math.floor(this.animTime/this.wagPeriod)%2
@@ -169,6 +210,6 @@ class Puppy extends PhysicsObject {
         } else {
             this.currWag = Math.max( this.currWag-this.wagSpeed*dt, this.minWag )
         }
-        this.children[4].wagAngle = this.currWag
+        this.wagChild.wagAngle = this.currWag
     }
 }

@@ -8,6 +8,11 @@ class Point {
         
         this.bouyancyMultiplier = 1
         this.wallFrictionMultiplier = 1
+        this.springs = []
+    }
+    
+    copy(){
+        return new Point(this.pos.copy(), this.vel.copy(), this.rad )
     }
     
     applyForce(f,dt){
@@ -20,15 +25,14 @@ class Point {
         if( this.pos.y > puddleHeight ){
             if( this.parentPuppy ){
                 this.parentPuppy.submerged = true
+                submergedPointCount += 1
+                this.vel = this.vel.add( startingBouyancy.add(damageBouyancy.mul(puppyDamage)).mul(dt*this.bouyancyMultiplier) )
+                this.vel = this.vel.add( puppySwimForce.mul(dt) )
             }
-            submergedPointCount += 1
-            this.vel = this.vel.add( bouyancy.mul(dt*this.bouyancyMultiplier) )
-            this.vel = this.vel.add( puppySwimForce.mul(dt) )
         }
         this.vel = this.vel.mul( (1.0-airFriction*dt) )
         
         var dp = this.vel.mul(dt)
-        var nextPos = this.pos.add(dp)
         
         if( !this.passThroughWalls ) {
             //this.debug = false
@@ -67,7 +71,7 @@ class Point {
                     if( corr ){
                         //this.debug = true
                         this.pos = this.pos.add( corr.sub(nPos) )
-                        return
+                        nPos = this.pos.add( Vector.polar( nPos.sub(this.pos).getAngle(), this.rad ) )
                     }
                 }
                 
@@ -84,12 +88,11 @@ class Point {
                         var dv = w.vel.sub(this.vel)
                         this.vel = this.vel.add( dv.mul(this.wallFrictionMultiplier*wallFriction*Math.cos(intr)) )
                     }
-                    nextPos = this.pos.add(this.vel.mul(dt))
                 }
             })
         }
         
-        this.pos  = nextPos
+        this.pos = this.pos.add(this.vel.mul(dt))
     }
     
     draw(g, debugColor='black'){

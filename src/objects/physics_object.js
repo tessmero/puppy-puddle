@@ -2,6 +2,7 @@ class PhysicsObject {
     
     constructor(){
         this.children = []
+        this.deleteMe = false
     }
     
     update(dt, all_ents){

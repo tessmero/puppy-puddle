@@ -36,10 +36,6 @@ function computeIntersection(line1Start, line1End, line2Start, line2End) {
 
 
 function computeNearestPointOnPolygon(point, polygon) {
-  // Check if the point is inside the polygon
-  if (!isPointInsidePolygon(point, polygon)) {
-    return null;
-  }
 
   let nearestPoint = null;
   let shortestDistance = Infinity;

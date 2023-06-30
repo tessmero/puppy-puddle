@@ -1,16 +1,13 @@
 class FaceGib extends Gib {
     
-    constructor(p1,p2,rad){
+    constructor(spring,rad){
         super()
         
-        this.p1 = p1
-        this.p2 = p2
-        this.p = p2
+        this.spring = spring
+        this.p1 = spring.ball1
+        this.p2 = spring.ball2
+        this.p = spring.ball2
         this.rad = rad
-    }
-    
-    update(dt){
-        
     }
     
     draw(g){
@@ -24,7 +21,7 @@ class FaceGib extends Gib {
         g.fill();
         
         
-        const eaDist = .04
+        const eaDist = .038
         const eaDa = .7
         const eaRad = .015
         const eaO = Vector.polar( angle, 0 )
@@ -39,11 +36,11 @@ class FaceGib extends Gib {
             g.fill();
         })
         
-        drawCutePuppyFace( g, this.p.pos, angle )
+        drawPuppyFace( g, this.p.pos, angle )
     }
 }
     
-function drawCutePuppyFace(g, pos, angle) {
+function drawPuppyFace(g, pos, angle) {
   
     const mDist = .02
     const mDa = .3
@@ -89,9 +86,9 @@ function drawCutePuppyFace(g, pos, angle) {
   
   
   // eyes
-  const eyeDist = .015
-  const eyeDa = .8
-  const eyeRad = .005
+  const eyeDist = .012
+  const eyeDa = .9
+  const eyeRad = .004
   const eyeCenters = [
     pos.add( Vector.polar( angle+eyeDa, eyeDist ) ),
     pos.add( Vector.polar( angle-eyeDa, eyeDist ) )
