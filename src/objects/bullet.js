@@ -1,21 +1,24 @@
 class Bullet extends PhysicsObject {
     
-    constructor(start,end){
+    constructor(p){
         super()
         
-        let d = end-start
-        
-        this.pos = start.copy()
-        this.vel = Vector.polar( d.getAngle(), .01 ) 
+        this.p = p
+        this.prevPos = p.pos
+        this.children = [p]
     }
     
-    update(dt, all_objects){
-        if( !paused ){
-            this.children.forEach(c => c.update(dt,all_walls))
-        }
+    update(g,all_ents){
+        this.prevPos = p.pos
+        super.update(g,all_ents)
+        
     }
     
     draw(g){
-        this.children.forEach(c => c.draw(g))
+        super.draw(g)
+        g.strokeStyle = 'black'
+        g.moveto( this.prevPos.x, this.prevPos.y )
+        g.lineTo( this.p.pos.x, this.p.pos.y )
+        g.stroke()
     }
 }

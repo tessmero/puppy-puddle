@@ -34,6 +34,13 @@ function draw(fps, t) {
     ctx.fillStyle = "rgba(100, 100, 255, 0.5)";
     ctx.fillRect(0,puddleHeight,1,1)
     
+    //clip edges
+    ctx.globalCompositeOperation = 'destination-in'
+    ctx.fillStyle = "white";
+    ctx.fillRect(0,0,1,1)
+    ctx.globalCompositeOperation = 'source-over'
+    
+    
     // Draw FPS on the screen
     //ctx.font = "25px Arial";
     //ctx.textAlign = "left";

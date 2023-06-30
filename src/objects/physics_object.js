@@ -4,13 +4,17 @@ class PhysicsObject {
         this.children = []
     }
     
-    update(dt, all_objects){
+    update(dt, all_ents){
         if( !paused ){
-            this.children.forEach(c => c.update(dt,all_objects))
+            this.children.forEach(c => c.update(dt,all_ents))
         }
     }
     
     draw(g){
         this.children.forEach(c => c.draw(g))
+    }
+    
+    getWallChildren(){
+        return this.children.filter( c => c instanceof Wall )
     }
 }

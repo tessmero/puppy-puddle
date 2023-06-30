@@ -44,7 +44,7 @@ class Puppy extends PhysicsObject {
         for( var i = 0 ; i < points.length ; i++ ){
             var p = new Vector( points[i][0]*m+ox, points[i][1]*m+oy ).add(pos)
             var vel = new Vector( 0, 0 )
-            all_balls.push( new Point( p, vel, .01 ) )
+            all_balls.push( new Point( p, vel, .02 ) )
         }
         var all_springs = []
         for( var i = 0 ; i < springs.length ; i++ ){
@@ -70,6 +70,7 @@ class Puppy extends PhysicsObject {
         all_balls[5].bouyancyMultiplier = 3 //shoulder
         all_balls[7].bouyancyMultiplier = 2 //tail
         all_balls[0].bouyancyMultiplier = .2 //back hip
+        all_balls[4].bouyancyMultiplier = .2 //back hip
         all_balls[2].bouyancyMultiplier = .2 //rear leg
         
         // animation specs
@@ -83,26 +84,27 @@ class Puppy extends PhysicsObject {
         this.phaseIndex = 0
         
         this.animPeriod = 150 // ms
-        this.minPhaseDuration = 2000 
-        this.maxPhaseDuration = 20000 
+        this.minPhaseDuration = 200 
+        this.maxPhaseDuration = 8000 
         this.phaseCountdown = 0 
         
         
         // assign member vars
         this.all_springs = all_springs
         this.all_balls = all_balls
+        
         this.children = all_balls.concat(all_springs).concat(all_gibs)
         
     }
     
-    update(dt, all_objects){
-        super.update(dt,all_objects)
+    update(dt, all_ents){
+        super.update(dt,all_ents)
        
         this.animTime += dt
         this.phaseCountdown -= dt
         if( this.phaseCountdown <= 0 ){
             this.phaseCountdown = this.minPhaseDuration + Math.random() * (this.maxPhaseDuration-this.minPhaseDuration)
-            this.phaseIndex = 1 //(this.phaseIndex+1)%3
+            this.phaseIndex = 1//(this.phaseIndex+1)%3
         }
         
         var targetDist = this.currDist;

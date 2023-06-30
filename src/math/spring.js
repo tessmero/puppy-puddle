@@ -1,10 +1,12 @@
+// constraint between to points
+
 class Spring {
     constructor(ball1, ball2, restLength) {
         this.ball1 = ball1;
         this.ball2 = ball2;
         this.restLength = restLength;
         this.prevLength = restLength;
-        this.springConstant = 1.5e-3;
+        this.springConstant = 1.6e-3;
         this.dampingConstant = 1;
     }
 
