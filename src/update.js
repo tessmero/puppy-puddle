@@ -20,17 +20,27 @@ function fitToContainer(){
 function update(dt) {
     fitToContainer()
     
-    if( !paused ){
+    if( paused ) return
+    
         
-        submergedPointCount = 0
-        all_ents.forEach(e => e.update(dt, all_ents))
-        all_ents = all_ents.filter( e => !e.deleteMe )
-        puddleHeight = defaultPuddleHeight - submergedPointCount*dhPerPoint
-        
-        // reset if puppy off-screen
-        var puppy = all_ents.find(e => e instanceof Puppy)
-        if( puppy.deleteMe ){
-            
-        }
+    // update entities and puddle
+    submergedPointCount = 0
+    all_ents.forEach(e => e.update(dt, all_ents))
+    puddleHeight = defaultPuddleHeight - submergedPointCount*dhPerPoint
+    if( puddleHeight < recordPuddleHeight ){
+        recordPuddleHeight = puddleHeight
+    }
+    
+    // remove entities marked for deletion
+    all_ents = all_ents.filter( e => !e.deleteMe )
+    
+    // reset/advance if puppy is off-screen
+    var pup = all_ents.find(e => e instanceof Puppy)
+    if( pup.isOffScreen() ){
+        all_ents = all_ents.filter(e => !(e instanceof Puppy))
+        all_ents.push( new Puppy( new Vector( .6, -.05 ), .1, 4 ) )
+        puppyDamage = 0
+        defaultPuddleHeight = puddleHeight
+        score += 1
     }
 }

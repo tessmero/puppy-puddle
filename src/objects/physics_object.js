@@ -14,8 +14,4 @@ class PhysicsObject {
     draw(g){
         this.children.forEach(c => c.draw(g))
     }
-    
-    getWallChildren(){
-        return this.children.filter( c => c instanceof Wall )
-    }
 }

@@ -1,4 +1,58 @@
 
+function computeNearestPointOnPolygon(point, polygon) {
+
+  let nearestPoint = null;
+  let shortestDistance = Infinity;
+
+  // Iterate through each edge of the polygon
+  for (let i = 0; i < polygon.length; i++) {
+    const currentPoint = polygon[i];
+    const nextPoint = polygon[(i + 1) % polygon.length];
+
+    // Compute the nearest point on the current edge
+    const edgePoint = computeNearestPointOnEdge(point, currentPoint, nextPoint);
+
+    // Compute the distance between the input point and the edge point
+    const distance = computeDistance(point, edgePoint);
+
+    // Update the nearest point if the distance is shorter
+    if (distance < shortestDistance) {
+      nearestPoint = edgePoint;
+      shortestDistance = distance;
+    }
+  }
+
+  return nearestPoint;
+}
+
+function computeNearestPointOnEdge(point, start, end) {
+  // Compute the vector representing the edge
+  const edgeVector = { x: end.x - start.x, y: end.y - start.y };
+
+  // Compute the vector from the start point to the input point
+  const pointVector = { x: point.x - start.x, y: point.y - start.y };
+
+  // Compute the dot product of the edge vector and the point vector
+  const dotProduct = pointVector.x * edgeVector.x + pointVector.y * edgeVector.y;
+
+  // Compute the squared length of the edge vector
+  const edgeLengthSquared = edgeVector.x * edgeVector.x + edgeVector.y * edgeVector.y;
+
+  // Compute the parameter value along the edge
+  const t = dotProduct / edgeLengthSquared;
+
+  // Clamp the parameter value to the range [0, 1]
+  const clampedT = Math.max(0, Math.min(1, t));
+
+  // Compute the nearest point on the edge
+  const nearestPoint = new Vector(
+    start.x + clampedT * edgeVector.x,
+    start.y + clampedT * edgeVector.y
+  );
+
+  return nearestPoint;
+}
+
 // return angle of incidence or null
 function computeIntersection(line1Start, line1End, line2Start, line2End) {
   const denominator =
@@ -33,34 +87,6 @@ function computeIntersection(line1Start, line1End, line2Start, line2End) {
   }
 }
 
-
-
-function computeNearestPointOnPolygon(point, polygon) {
-
-  let nearestPoint = null;
-  let shortestDistance = Infinity;
-
-  // Iterate through each edge of the polygon
-  for (let i = 0; i < polygon.length; i++) {
-    const currentPoint = polygon[i];
-    const nextPoint = polygon[(i + 1) % polygon.length];
-
-    // Compute the nearest point on the current edge
-    const edgePoint = computeNearestPointOnEdge(point, currentPoint, nextPoint);
-
-    // Compute the distance between the input point and the edge point
-    const distance = computeDistance(point, edgePoint);
-
-    // Update the nearest point if the distance is shorter
-    if (distance < shortestDistance) {
-      nearestPoint = edgePoint;
-      shortestDistance = distance;
-    }
-  }
-
-  return nearestPoint;
-}
-
 function isPointInsidePolygon(point, polygon) {
   // Ray casting algorithm to determine if the point is inside the polygon
   let isInside = false;
@@ -82,33 +108,6 @@ function isPointInsidePolygon(point, polygon) {
   return isInside;
 }
 
-function computeNearestPointOnEdge(point, start, end) {
-  // Compute the vector representing the edge
-  const edgeVector = { x: end.x - start.x, y: end.y - start.y };
-
-  // Compute the vector from the start point to the input point
-  const pointVector = { x: point.x - start.x, y: point.y - start.y };
-
-  // Compute the dot product of the edge vector and the point vector
-  const dotProduct = pointVector.x * edgeVector.x + pointVector.y * edgeVector.y;
-
-  // Compute the squared length of the edge vector
-  const edgeLengthSquared = edgeVector.x * edgeVector.x + edgeVector.y * edgeVector.y;
-
-  // Compute the parameter value along the edge
-  const t = dotProduct / edgeLengthSquared;
-
-  // Clamp the parameter value to the range [0, 1]
-  const clampedT = Math.max(0, Math.min(1, t));
-
-  // Compute the nearest point on the edge
-  const nearestPoint = new Vector(
-    start.x + clampedT * edgeVector.x,
-    start.y + clampedT * edgeVector.y
-  );
-
-  return nearestPoint;
-}
 
 function computeDistance(point1, point2) {
   // Compute the Euclidean distance between two points
@@ -116,7 +115,6 @@ function computeDistance(point1, point2) {
   const dy = point2.y - point1.y;
   return Math.sqrt(dx * dx + dy * dy);
 }
-
 
 
 

@@ -3,6 +3,8 @@ class Bullet extends PhysicsObject {
     constructor(p){
         super()
         
+        p.passThroughWalls = true
+        
         this.p = p
         this.children = [p]
         this.lifetime = 1000
@@ -24,7 +26,7 @@ class Bullet extends PhysicsObject {
         // impact force
         var dv = Vector.polar(this.p.vel.getAngle(), bulletForce)
         
-        // collide with balls
+        //collide with balls
         all_ents.flatMap(e => e.children).filter(e => e instanceof Point).every(p=>{
             var np = computeNearestPointOnEdge(p.pos, a, b)
             if( np.sub(p.pos).getMagnitude() < p.rad ){
@@ -33,8 +35,8 @@ class Bullet extends PhysicsObject {
                 p.hitByBullet = true
                 //puppyDamage += 1
                 this.deleteMe = true
-                return false
-            }
+                return true
+            }   
             return true
         })
         
@@ -48,12 +50,17 @@ class Bullet extends PhysicsObject {
                 var balls = [s.ball1,s.ball2]
                 balls.forEach(b => {
                     b.vel = b.vel.add(dv)
-                    b.wallFrictionMultiplier = 0 
-                    b.bouyancyMultiplier = .5
+                    if( s.breakable ){
+                        b.wallFrictionMultiplier = 0 
+                        b.bouyancyMultiplier = .5
+                    }
                 })
-                s.hitByBullet = true
-                puppyDamage += 1
-                this.deleteMe = true
+                
+                if( s.breakable ){
+                    s.hitByBullet = true
+                    puppyDamage += 1
+                    this.deleteMe = true
+                }
                 return false
             }
             return true
@@ -66,7 +73,7 @@ class Bullet extends PhysicsObject {
         var tailPos = this.p.pos.sub(Vector.polar( this.p.vel.getAngle(), .1 ))
         
         g.strokeStyle = 'black'
-        g.lineWidth = .004
+        g.lineWidth = .01
         g.beginPath()
         g.moveTo( tailPos.x, tailPos.y )
         g.lineTo( this.p.pos.x, this.p.pos.y )

@@ -7,7 +7,7 @@ class Point {
         this.rad = rad
         
         this.bouyancyMultiplier = 1
-        this.wallFrictionMultiplier = 1
+        this.wallFrictionMultiplier = 0
         this.springs = []
     }
     
@@ -26,7 +26,7 @@ class Point {
             if( this.parentPuppy ){
                 this.parentPuppy.submerged = true
                 submergedPointCount += 1
-                this.vel = this.vel.add( startingBouyancy.add(damageBouyancy.mul(puppyDamage)).mul(dt*this.bouyancyMultiplier) )
+                this.vel = this.vel.add( startingBouyancy.mul(dt*this.bouyancyMultiplier*Math.pow(damageBouyancyPenalty,puppyDamage)) )
                 this.vel = this.vel.add( puppySwimForce.mul(dt) )
             }
         }
@@ -36,8 +36,8 @@ class Point {
         
         if( !this.passThroughWalls ) {
             //this.debug = false
-            all_ents.flatMap( o => o.getWallChildren())
-                    .forEach( w => {
+            all_ents.filter( e => e instanceof Platform )
+                    .forEach( plt => {
                 
                 /*
                 var npos = w.getNp(this.pos)
@@ -56,39 +56,31 @@ class Point {
                 }
                 */
                 
-                // nearest point on wall
-                var nPos = w.getNp(this.pos)
-                if( nPos == null ){
-                    return
+                // check current position
+                var curr_cwnp = plt.collisionCheck(this)
+                if( curr_cwnp ){
+                    this.pos = curr_cwnp[0]
                 }
                 
-                // nearest point on edge of my radius
-                nPos = this.pos.add( Vector.polar( nPos.sub(this.pos).getAngle(), this.rad ) )
-                    
-                // push out of solid platform
-                if( w.parentPlatform ){
-                    var corr = w.parentPlatform.inPlatform(nPos)
-                    if( corr ){
-                        //this.debug = true
-                        this.pos = this.pos.add( corr.sub(nPos) )
-                        nPos = this.pos.add( Vector.polar( nPos.sub(this.pos).getAngle(), this.rad ) )
-                    }
+                //check next positoin
+                var next_p = this.copy()
+                next_p.pos = this.pos.add(dp)
+                var next_cwnp = plt.collisionCheck(next_p)
+                if( next_cwnp ){
+                    var w = next_cwnp[1]
+                    var intr = computeIntersection(this.pos, next_p.pos, w.a, w.b)
+                        
+                        // bounce
+                        var speed = this.vel.getMagnitude()
+                        var angle = this.vel.getAngle()
+                        var newAngle = 2*w.angle - angle
+                        this.vel = Vector.polar(newAngle,speed*(1.0-bounceLoss))
+                        if( w.vel ){
+                            var dv = w.vel.sub(this.vel)
+                            this.vel = this.vel.add( dv.mul(this.wallFrictionMultiplier*wallFriction*Math.cos(intr)) )
+                        }
                 }
                 
-                // collision check
-                var intr = computeIntersection(nPos, nPos.add(dp), w.a, w.b)
-                if( intr != null ){
-                    
-                    // bounce
-                    var speed = this.vel.getMagnitude()
-                    var angle = this.vel.getAngle()
-                    var newAngle = 2*w.angle - angle
-                    this.vel = Vector.polar(newAngle,speed*(1.0-bounceLoss))
-                    if( w.vel ){
-                        var dv = w.vel.sub(this.vel)
-                        this.vel = this.vel.add( dv.mul(this.wallFrictionMultiplier*wallFriction*Math.cos(intr)) )
-                    }
-                }
             })
         }
         

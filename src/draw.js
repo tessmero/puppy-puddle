@@ -32,18 +32,26 @@ function draw(fps, t) {
     ctx.globalCompositeOperation = 'source-over'
     
     // draw mouse position
-    ctx.fillStyle = 'red'
-    ctx.beginPath()
-    ctx.arc(mousePos.x,mousePos.y,.02,0,2*Math.PI)
-    ctx.fill()
+    //ctx.fillStyle = 'red'
+    //ctx.beginPath()
+    //ctx.arc(mousePos.x,mousePos.y,.02,0,2*Math.PI)
+    //ctx.fill()
     
     
-    // Draw FPS on the screen
-    ctx.font = ".025px Arial";
+    //draw score at puddle height
+    ctx.font = ".04px Arial";
     ctx.textAlign = "left";
     ctx.fillStyle = "black";
-    var x = .4
-    var y = .4
+    var x = .03
+    var y = recordPuddleHeight
+    ctx.fillText("Score: " + score, x, y);
+    
+    // Draw FPS on the screen
+    //ctx.font = ".025px Arial";
+    //ctx.textAlign = "left";
+    //ctx.fillStyle = "black";
+    //var x = .4
+    //var y = .4
     //ctx.fillText("FPS: " + fps, x, y);
     
     

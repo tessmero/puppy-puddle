@@ -9,15 +9,15 @@ class Wall{
         this.d = d 
         this.angle = d.getAngle()
         this.det = d.x*d.x + d.y*d.y
+        this.vel = new Vector(0,0)
     }
     
     // get point on this wall, nearest to p
     getNp(p){
         var dp = p.sub(this.a)
         var r = (dp.x*this.d.x + dp.y*this.d.y) / this.det
-        if((r<0) | (r>1)){
-            return null
-        }
+        if(r<0) r = 0
+        if(r>1) r = 1
         return this.a.add(this.d.mul(r))
     }
     

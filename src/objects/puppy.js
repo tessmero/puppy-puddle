@@ -60,8 +60,6 @@ class Puppy extends PhysicsObject {
             spring.parentPuppy = this
             all_springs.push(spring)
         }
-        var is = [0,1,4,7,12,18]
-        is.forEach( i => all_springs[i].breakable = true )
         var all_gibs = []
         for( var i = 0 ; i < gibs.length ; i++ ){
             if( gibs[i][0] == 'r' ){
@@ -71,11 +69,29 @@ class Puppy extends PhysicsObject {
                 var gib = new LineGib( all_springs[gibs[i][1]] )
             } else {
                 var gib = new FaceGib( all_springs[gibs[i][1]], gibs[i][0] )
+                this.faceGib = gib
             }
             gib.parentPuppy = this
             all_gibs.push(gib)
         }
         
+       // make some springs breakable
+       this.breakSpecs = [
+        //[0,[0,7,2,3,8,9,13,14,15,16,17]], //belly
+        //[7,[0,7,2,3,8,9,13,14,15,16,17]], //back
+        [18,[16,17,19],7], //tail
+        //[12,[13,14,15]], //head
+        [1,[3,10],2], //leg
+        [4,[2,11],3], //leg
+       ]
+        all_springs.forEach( s => s.breakable = true )
+        all_springs[0].breakable = false
+        all_springs[5].breakable = false
+        all_springs[6].breakable = false
+        all_springs[7].breakable = false
+        all_springs[12].breakable = false
+        //this.breakSpecs.forEach( row => all_springs[row[0]].breakable = true )
+       
         //adjust bouyancy
         all_balls[6].bouyancyMultiplier = 3 //head
         all_balls[5].bouyancyMultiplier = 3 //shoulder
@@ -119,40 +135,22 @@ class Puppy extends PhysicsObject {
         
     }
     
+    isOffScreen(){
+        var miny = 1.05
+        return (this.faceGib.spring.ball2.pos.y > miny) 
+            & (this.all_balls.filter(b =>  b.pos.y > miny).length > 5)
+    }
+    
     update(dt, all_ents){
         super.update(dt,all_ents)
-       
-       var breakSpecs = [
-        [0,[2,3,8,9,14,15]], //belly
-        [7,[1,3,8,9,14,15]], //back
-        [18,[16,17,18,19]], //tail
-        [12,[13,14,15]], //head
-        [1,[2,10]], //leg
-        [4,[3,11]], //leg
-       ]
-       
-       breakSpecs.forEach(spec => {
+        
+        //check for broken springs and maybe break more springs
+       this.breakSpecs.forEach(spec => {
           if( this.all_springs[spec[0]].hitByBullet ){
             spec[1].forEach( j => this.all_springs[j].hitByBullet = true )
+            this.all_balls[spec[2]].wallFrictionMultiplier = 0
           }
        })
-        //check if belly broken
-        if( this.all_springs[0].hitByBullet ){
-            var is = [2,3,8,9,14,15]
-            is.forEach( i => this.all_springs[i].hitByBullet = true )
-        }
-       
-        //check if back broken
-        if( this.all_springs[7].hitByBullet ){
-            var is = [2,3,8,9,14,15]
-            is.forEach( i => this.all_springs[i].hitByBullet = true )
-        }
-       
-        //check if broken in half
-        if( this.all_springs[0].hitByBullet & this.all_springs[7].hitByBullet ){
-            var is = [2,3,8,9,14,15,16,17]
-            is.forEach( i => this.all_springs[i].hitByBullet = true )
-        }
        
         this.animTime += dt
         if( this.submerged ){

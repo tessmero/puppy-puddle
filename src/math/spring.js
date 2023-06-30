@@ -6,7 +6,7 @@ class Spring {
         this.ball2 = ball2;
         this.restLength = restLength;
         this.prevLength = restLength;
-        this.springConstant = 1.6e-3;
+        this.springConstant = 1.2e-3;
         this.dampingConstant = 1;
         
         ball1.springs.push(this)
