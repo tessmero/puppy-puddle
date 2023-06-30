@@ -48,12 +48,14 @@ class Spring {
     }
 
     draw(g) {
-        g.strokeStyle = (this.debug ? 'red' : 'gray')
-        g.lineWidth = .01;
-        g.beginPath();
-        g.moveTo(this.ball1.pos.x, this.ball1.pos.y);
-        g.lineTo(this.ball2.pos.x, this.ball2.pos.y);
-        g.stroke();
+        if( this.debug ){
+            g.strokeStyle = 'gray'
+            g.lineWidth = .01;
+            g.beginPath();
+            g.moveTo(this.ball1.pos.x, this.ball1.pos.y);
+            g.lineTo(this.ball2.pos.x, this.ball2.pos.y);
+            g.stroke();
+        }
     }
 }
 

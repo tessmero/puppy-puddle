@@ -11,6 +11,8 @@ function update(dt) {
     fitToContainer()
     
     if( !paused ){
+        
+        
         submergedPointCount = 0
         for( var i = 0 ; i < all_ents.length ; i++ ){
             all_ents[i].update(dt, all_ents)

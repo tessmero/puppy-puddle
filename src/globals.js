@@ -18,10 +18,10 @@ var canvasMouseY = 0 //pixels
 
 var gravity = new Vector( 0, 1e-6 ) // accel per ms
 var bouyancy = new Vector( 0, -1.5e-6 ) // accel per ms
-var puppySwimForce = new Vector( 1e-7, 0 ) // accel per ms 
+var puppySwimForce = new Vector( 5e-8, 0 ) // accel per ms 
 var airFriction = 1e-3 // fraction of speed lost per ms
-var bounceLoss = .2 // fraction of speed lost per bounce
-var wallFriction = .8 // points sliding against wall
+var bounceLoss = .7 // fraction of speed lost per bounce
+var wallFriction = 1 // points sliding against wall
 
 
 var defaultPuddleHeight = .7 // y-axis position
@@ -33,16 +33,14 @@ var submergedPointCount = 0
 var all_ents = []
 
 //outer walls
-var p = .001
-var all_corners = [[p,p],[1-p,p],[1-p,1-p],[p,1-p],[p,p]]
-for( var i = 0 ; i < 4 ; i++ ){
-    var a = new Vector(...all_corners[i])
-    var b = new Vector(...all_corners[i+1])
-    all_ents.push( new Wall(a,b) )
-}
+var p = .05
+all_ents.push( new Platform( -p,-p,2,p ) )
+all_ents.push( new Platform( -p,-p,p,2 ) )
+all_ents.push( new Platform( 1,0,p,2 ) )
+all_ents.push( new Platform( 0,1,2,p ) )
 
-//ledge
-var ledge = new Platform(0,.4,.4,.1) 
+//moving ledge
+var ledge = new Platform(0,.2,.4,.1) 
 ledge.vel = new Vector(-3e-5,0)
 all_ents.push( ledge )
 

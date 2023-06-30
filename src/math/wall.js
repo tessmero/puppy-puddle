@@ -27,7 +27,7 @@ class Wall{
    
     draw(g){
         g.strokeStyle = 'black'
-        g.lineWidth = .01
+        g.lineWidth = .001
         g.beginPath()
         g.moveTo( this.a.x, this.a.y )
         g.lineTo( this.b.x, this.b.y )

@@ -9,7 +9,7 @@ class Puppy extends PhysicsObject {
             [0,.3],[1,.3], //23 feat
             [0,-.5],[1.,-.5], //45 top
             [1.3,-.5], //6 head
-            [-.2,-.6] //7 tail
+            [-.3,-.6] //7 tail
         ]
         var springs = [
             [0,1], //0 belly
@@ -44,8 +44,11 @@ class Puppy extends PhysicsObject {
         for( var i = 0 ; i < points.length ; i++ ){
             var p = new Vector( points[i][0]*m+ox, points[i][1]*m+oy ).add(pos)
             var vel = new Vector( 0, 0 )
-            all_balls.push( new Point( p, vel, .02 ) )
+            var ball = new Point( p, vel, .02 )
+            ball.parentPuppy = this
+            all_balls.push( ball )
         }
+        this.feet = [all_balls[2],all_balls[3]]
         var all_springs = []
         for( var i = 0 ; i < springs.length ; i++ ){
             var a = all_balls[springs[i][0]]
@@ -64,6 +67,7 @@ class Puppy extends PhysicsObject {
                 all_gibs.push(new FaceGib( ps[0],ps[1], gibs[i][0] ))
             }
         }
+        all_gibs[4].lineWidth = .03
         
         //adjust bouyancy
         all_balls[6].bouyancyMultiplier = 3 //head
@@ -73,27 +77,35 @@ class Puppy extends PhysicsObject {
         all_balls[4].bouyancyMultiplier = .2 //back hip
         all_balls[2].bouyancyMultiplier = .2 //rear leg
         
-        // animation specs
+        // leg animation specs
         this.currDist = all_springs[3].restLength
         this.upDist = this.currDist
-        this.shortDist = this.upDist * .9
-        this.longDist = this.upDist * 1.1
+        this.shortDist = this.upDist * .8
+        this.longDist = this.upDist * 1.3
         this.restDist = this.upDist * 1.3
         this.animTime = 0
         this.animSpeed = 1e-4 // dist units per ms
-        this.phaseIndex = 0
+        this.phaseIndex = 1
         
         this.animPeriod = 150 // ms
-        this.minPhaseDuration = 200 
-        this.maxPhaseDuration = 8000 
+        this.minPhaseDuration = 1000 
+        this.maxPhaseDuration = 3000 
         this.phaseCountdown = 0 
+        
+        // wag animation specs
+        this.currWag = 0 //radians
+        this.minWag = 0 //radians
+        this.maxWag = 1 //radians
+        this.wagSpeed = 2e-2 // radians per ms
+        this.wagPeriod = 100 // ms
         
         
         // assign member vars
         this.all_springs = all_springs
         this.all_balls = all_balls
         
-        this.children = all_balls.concat(all_springs).concat(all_gibs)
+        //this.children = all_balls.concat(all_springs).concat(all_gibs)
+        this.children = all_gibs.concat(all_springs).concat(all_balls)
         
     }
     
@@ -101,35 +113,47 @@ class Puppy extends PhysicsObject {
         super.update(dt,all_ents)
        
         this.animTime += dt
-        this.phaseCountdown -= dt
-        if( this.phaseCountdown <= 0 ){
-            this.phaseCountdown = this.minPhaseDuration + Math.random() * (this.maxPhaseDuration-this.minPhaseDuration)
-            this.phaseIndex = 1//(this.phaseIndex+1)%3
+        if( this.submerged ){
+            this.phaseIndex = 1
+        } else {
+            this.phaseCountdown -= dt
+            if( this.phaseCountdown <= 0 ){
+                this.phaseCountdown = this.minPhaseDuration + Math.random() * (this.maxPhaseDuration-this.minPhaseDuration)
+                this.phaseIndex = (this.phaseIndex+1)%2
+            }
         }
         
         var targetDist = this.currDist;
         if( this.phaseIndex == 0 ){
             
-            //standing
+            //standing legs
             targetDist = this.upDist
+            this.feet[0].wallFrictionMultiplier = 1
+            this.feet[1].wallFrictionMultiplier = 1
             
         } else if (this.phaseIndex == 1){
             
-            // excited
+            // excited legs
             var animIndex = Math.floor(this.animTime/this.animPeriod)%2
             if( animIndex == 0 ){
                 targetDist = this.longDist
+                this.feet[0].wallFrictionMultiplier = 1
+                this.feet[1].wallFrictionMultiplier = 0
             } else {
                 targetDist = this.shortDist
+                this.feet[0].wallFrictionMultiplier = 0
+                this.feet[1].wallFrictionMultiplier = 1
             }
             
         } else if (this.phaseIndex == 2){
             
-            //resting
+            //resting legs
             targetDist = this.longDist
-            
+            this.feet[0].wallFrictionMultiplier = 1
+            this.feet[1].wallFrictionMultiplier = 1
         }
-        
+            
+        // move legs
         if( targetDist > this.currDist ){ 
             this.currDist = Math.min( this.currDist+this.animSpeed*dt, targetDist )
         } else {
@@ -137,5 +161,14 @@ class Puppy extends PhysicsObject {
         }
         this.all_springs[3].restLength = this.currDist
         this.all_springs[2].restLength = this.currDist
+            
+        // wag tail
+        var wagIndex = Math.floor(this.animTime/this.wagPeriod)%2
+        if( wagIndex == 0 ){ 
+            this.currWag = Math.min( this.currWag+this.wagSpeed*dt, this.maxWag )
+        } else {
+            this.currWag = Math.max( this.currWag-this.wagSpeed*dt, this.minWag )
+        }
+        this.children[4].wagAngle = this.currWag
     }
 }

@@ -15,6 +15,12 @@ class Vector {
         return new Vector(this.x,this.y)
     }
     
+    rotate(angle){
+        var cos = Math.cos(angle)
+        var sin = Math.sin(angle)
+        return new Vector( this.x*cos-this.y*sin, this.y*cos+this.x*sin )
+    }
+    
     getAngle(){
         return Math.atan2( this.y, this.x )
     }
