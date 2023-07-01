@@ -23,7 +23,7 @@ function draw(fps, t) {
     
     //draw water
     ctx.fillStyle = "rgba(255, 50, 50, 0.5)";
-    ctx.fillRect(0,puddleHeight,1,1)
+    ctx.fillRect(0,recordPuddleHeight,1,1)
     
     //clip edges
     ctx.globalCompositeOperation = 'destination-in'

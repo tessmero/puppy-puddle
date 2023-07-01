@@ -25,7 +25,7 @@ function gameLoop(timeStamp) {
     var fps = Math.round(1 / secondsPassed);
 
 
-    msPassed = Math.min(msPassed,30)
+    msPassed = Math.max( 10, Math.min(msPassed,20) )
 
     update(msPassed);
     draw(fps);

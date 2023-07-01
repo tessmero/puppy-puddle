@@ -51,12 +51,12 @@ all_ents.push( new Platform( 1-p/2,0,p,2 ) )
 
 //moving ledge
 var ledge = new Platform(0,.3,.6,.05,angle=0) 
-ledge.vel = new Vector(-3e-3,0)
+ledge.vel = new Vector(-3e-5,0)
 all_ents.push( ledge )
 
 
 var ledge2 = new Platform(.59,.27,.3,.05,angle=-.2) 
-ledge2.vel = new Vector(-3e-3,0)
+ledge2.vel = new Vector(-3e-5,0)
 all_ents.push( ledge2 )
 
 all_ents.push( new Platform(.5,.5,.4,.06,angle=-.3)  )
